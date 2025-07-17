@@ -29,46 +29,81 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const sessionId = request.headers.get('mcp-session-id');
     
+    // Check if this is an initialize request
+    if (isInitializeRequest(body)) {
+      // Create new session for initialize request
+      const newSessionId = randomUUID();
+      const server = new HeyGenMCPServer();
+      const transport = new StreamableHTTPServerTransport({
+        sessionIdGenerator: () => newSessionId,
+        onsessioninitialized: (sessionId) => {
+          console.log('Session initialized:', sessionId);
+        },
+      });
+      
+      await server.connect(transport);
+      
+      transports.set(newSessionId, transport);
+      servers.set(newSessionId, server);
+      
+      // Create mock request/response for initialize
+      const mockReq = {
+        headers: Object.fromEntries(request.headers.entries()),
+        body,
+      };
+
+      let responseData: any;
+      const mockRes = {
+        statusCode: 200,
+        headers: {} as Record<string, string>,
+        setHeader(name: string, value: string) {
+          this.headers[name] = value;
+        },
+        writeHead(status: number) {
+          this.statusCode = status;
+          return this;
+        },
+        end(data?: string) {
+          if (data) {
+            responseData = JSON.parse(data);
+          }
+        },
+      };
+
+      await transport.handleRequest(mockReq as any, mockRes as any);
+
+      if (responseData) {
+        return NextResponse.json(responseData, {
+          status: mockRes.statusCode,
+          headers: {
+            ...mockRes.headers,
+            'mcp-session-id': newSessionId,
+          },
+        });
+      }
+
+      return NextResponse.json(
+        { error: 'Failed to initialize session' },
+        { status: 500 }
+      );
+    }
+    
+    // For non-initialize requests, require session ID
     let transport = sessionId ? transports.get(sessionId) : undefined;
     let server = sessionId ? servers.get(sessionId) : undefined;
 
     if (!transport || !server) {
-      if (!isInitializeRequest(body)) {
-        return NextResponse.json(
-          {
-            jsonrpc: '2.0',
-            error: {
-              code: -32000,
-              message: 'Bad Request: No valid session ID provided',
-            },
-            id: null,
+      return NextResponse.json(
+        {
+          jsonrpc: '2.0',
+          error: {
+            code: -32000,
+            message: 'Bad Request: No valid session ID provided',
           },
-          { status: 400 }
-        );
-      }
-
-      // Create new session
-      server = new HeyGenMCPServer();
-      transport = new StreamableHTTPServerTransport({
-        sessionIdGenerator: () => randomUUID(),
-        onsessioninitialized: (newSessionId) => {
-          if (transport && server) {
-            transports.set(newSessionId, transport);
-            servers.set(newSessionId, server);
-          }
+          id: null,
         },
-      });
-
-      // Clean up on close
-      const currentTransport = transport;
-      currentTransport.onclose = () => {
-        if (currentTransport.sessionId) {
-          transports.delete(currentTransport.sessionId);
-          servers.delete(currentTransport.sessionId);
-        }
-      };
-
-      await server.connect(transport);
+        { status: 400 }
+      );
     }
 
     // Create a mock Express-like request/response
