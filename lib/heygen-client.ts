@@ -50,11 +50,11 @@ export class HeyGenApiClient {
     try {
       const data = await this.request<any>('/v1/user/remaining_quota');
       return {
-        remaining_quota: data.data?.remaining_quota || 0,
+        remaining_credits: data.data?.remaining_quota || 0,
       };
     } catch (error) {
       return {
-        remaining_quota: 0,
+        remaining_credits: 0,
         error: error instanceof Error ? error.message : 'Unknown error',
       };
     }

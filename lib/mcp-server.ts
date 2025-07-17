@@ -225,9 +225,11 @@ export class HeyGenMCPServer {
               video_inputs: [
                 {
                   character: {
+                    type: 'avatar',
                     avatar_id: args.avatar_id,
                   },
                   voice: {
+                    type: 'text',
                     input_text: args.input_text,
                     voice_id: args.voice_id,
                   },

@@ -1,6 +1,6 @@
 // HeyGen API Types
 export interface HeyGenCredits {
-  remaining_quota: number;
+  remaining_credits: number;
   error?: string;
 }
 
@@ -9,9 +9,9 @@ export interface Voice {
   language: string;
   gender: string;
   name: string;
-  preview_audio?: string;
-  support_pause?: boolean;
-  emotion_support?: boolean;
+  preview_audio: string;
+  support_pause: boolean;
+  emotion_support: boolean;
 }
 
 export interface VoicesResponse {
@@ -33,8 +33,8 @@ export interface Avatar {
   avatar_id: string;
   avatar_name: string;
   gender: string;
-  preview_image_url?: string;
-  preview_video_url?: string;
+  preview_image_url: string;
+  preview_video_url: string;
 }
 
 export interface AvatarsInGroupResponse {
@@ -43,33 +43,25 @@ export interface AvatarsInGroupResponse {
 }
 
 export interface VideoGenerateRequest {
-  title?: string;
   video_inputs: VideoInput[];
-  dimension?: Dimension;
+  dimension?: {
+    width: number;
+    height: number;
+  };
+  test?: boolean;
+  title?: string;
 }
 
 export interface VideoInput {
-  character: Character;
-  voice: VoiceInput;
-}
-
-export interface Character {
-  avatar_id: string;
-  scale?: number;
-  avatar_style?: string;
-  type?: string;
-}
-
-export interface VoiceInput {
-  input_text: string;
-  voice_id: string;
-  speed?: number;
-  pitch?: number;
-}
-
-export interface Dimension {
-  width: number;
-  height: number;
+  character: {
+    type: 'avatar';
+    avatar_id: string;
+  };
+  voice: {
+    type: 'text';
+    input_text: string;
+    voice_id: string;
+  };
 }
 
 export interface VideoGenerateResponse {
