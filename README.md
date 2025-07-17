@@ -42,7 +42,9 @@ Server will be available at `http://localhost:3000`
 
 ## Deploy to Vercel
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/heygen-mcp-http&env=HEYGEN_API_KEY&envDescription=Your%20HeyGen%20API%20key&envLink=https://www.heygen.com/)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/nohavewho/heygen-mcp-http&env=HEYGEN_API_KEY&envDescription=Your%20HeyGen%20API%20key&envLink=https://www.heygen.com/)
+
+**Live Production URL**: https://heygen-mcp-http.vercel.app/
 
 ## MCP Client Configuration
 
@@ -54,7 +56,7 @@ Add to your `.cursor/mcp.json`:
 {
   "mcpServers": {
     "heygen-http": {
-      "url": "https://your-deployment.vercel.app/api/mcp",
+      "url": "https://heygen-mcp-http.vercel.app/api/mcp",
       "transport": "http"
     }
   }
@@ -69,7 +71,7 @@ Add to your Claude configuration:
 {
   "mcpServers": {
     "heygen-http": {
-      "url": "https://your-deployment.vercel.app/api/mcp",
+      "url": "https://heygen-mcp-http.vercel.app/api/mcp",
       "transport": "sse"
     }
   }
